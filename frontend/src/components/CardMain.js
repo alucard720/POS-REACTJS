@@ -8,6 +8,7 @@ function CardMain() {
     const [loading, setLoading] = useState(false)
     const [cart, setCart] = useState([]);
     const [tax, setTax] = useState();
+    let [itemSearch, setItemSearch] = useState("");
 
     const Dtax = 18;
     const percentage = parseFloat(Dtax)+'%';
@@ -44,28 +45,41 @@ function CardMain() {
 
     }
 
-
-    const removeCartItem=(whichItem)=>{
-        let newCart = [];
-        for(let i=0; i < cart.length; i++){
-            if(i!== whichItem){
-                newCart.push(cart[i])
-            }
-        }
-        setCart((cart)=> newCart);
-        calculate(newCart)
+    const filterItems = ()=>{
+            let searchTxt = document.querySelector("[name = 'filterItems']").value
+            searchTxt = searchTxt.toLowerCase();
+            setItemSearch((itemSearch)=> searchTxt)
     }
 
 
+    const removeCartItem=(whichItem)=>{
+        let tempCart = [];
+        for(let i=0; i < cart.length; i++){
+            if(i!== whichItem){
+                tempCart.push(cart[i])
+            }
+        }
+        setCart((cart)=> tempCart);
+        calculate(tempCart)
+    }
+
+    const submitCard =()=>{
+
+    }
   return (
     
     
-    <div className='row'>
-<div className='col-md-8 scrollable-column' >
+    <div className='row' style={{padding:'2rem'}}>
+<div className='col-md-8 scrollable-column ' >
     <h2>Productos</h2>
-    {loading ? <div><h3>Loading</h3></div> : <div className='d-grid gap-3' style={{gridTemplateColumns: "220px 220px 220px 220px"}}>
-    {products.length > 0 ? products.map((item, key)=>{
-            return<div  key={key} className="">
+    <input  type='text' name='filterItems' placeholder='Buscar Producto' className='form-control Search' onChange={()=>filterItems()}/>
+    {loading ? <div><h3>Loading</h3></div> : <div className='responsive-layout ' >
+    {products.length > 0 ? products.map((item, key) => {
+        let tempName = item.Nombre.toLowerCase();
+        if(tempName.indexOf(itemSearch)!==-1) {
+                console.log("tempName: " + tempName + "- itemSearch: " + itemSearch);
+        
+            return<div  key={key}>
             <Card className='' >
             <Card.Body>
                 <Card.Img src={item.imagen} alt="" className='banner-image'/>
@@ -78,9 +92,9 @@ function CardMain() {
             </Card>
 
 </div>}
-         
+    }     
         ):null}
-
+    
     </div>} 
 </div>
   
@@ -90,7 +104,7 @@ function CardMain() {
         {cart.length > 0 ? cart.map((cartItem, i)=>{
 
             return(<li key={i} className='list-group-item'>
-            {cartItem.Nombre} {" " +cartItem.Precio}<span className='fa fa-trash' onClick={()=>removeCartItem(i)}></span></li>)
+           <span className='' onClick={()=>removeCartItem(i)}> {cartItem.Nombre} {" " +cartItem.Precio}</span></li>)
         }):null}
     </div>
     {cart.length > 0 ? 
@@ -98,7 +112,7 @@ function CardMain() {
         <li>Itbis ${percentage}</li>
         <li><h4>Sin Itbis ${tax.toFixed(2)}</h4></li>
         <li><div className='alert alert-success' role='alert'><h3 className=''> Total con Itbis ${((Dtax2 * tax)+ tax).toFixed(2)}</h3></div></li>
-
+        <li><Button variant='Danger' onClick={()=>submitCard()}/></li>
     </ul>    
      :    
     null}
