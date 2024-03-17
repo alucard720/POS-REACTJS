@@ -4,6 +4,7 @@ import '../App.css'
 import { Button, Card } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 function CardMain() {
+    const [translog, setTranslog] = useState([]);
     const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(false)
     const [cart, setCart] = useState([]);
@@ -25,6 +26,15 @@ function CardMain() {
     useEffect(()=>{
         fetchProducts()
     })
+
+    useEffect(()=>{
+        if(loading === false){
+            if(localStorage.getItem('translog')){
+                setTranslog((translog)=>JSON.parse(localStorage.getItem('translog')));
+            }
+            setLoading((loading)=>true);
+        }
+    },[])
     
     const calculate = (newCart)=>{
         let pretax = 0;
@@ -65,8 +75,30 @@ function CardMain() {
 
     const submitCard =()=>{
 
+            const timeStamp = new Date().toString();
+            const user ='miguel@gmail.com';   
+            let total = (Dtax2 * tax) + tax;      
+            let currentCart =[cart, total];
+            if(localStorage.getItem('cart')){
+                currentCart = JSON.parse(localStorage.getItem('cart'))
+            }
+
+            let tempCart = [];
+            for(let i=0; i <cart.length; i++){
+                tempCart.push({salesId: user  + ":" + timeStamp,
+                               Nombre: cart[i].Nombre, 
+                              /*  Precio: cart[i].Precio,
+                               Total: ((cart[i].Precio * Dtax2 * tax) + (cart[i].Precio).toFixed(2)), */
+                                })
+            }
+            tempCart =[...currentCart, ...tempCart];
+            localStorage.setItem("purcahgelog", JSON.stringify(tempCart));
+            setCart((cart)=>[]);
     }
-  return (
+
+
+
+  return (  
     
     
     <div className='row' style={{padding:'2rem'}}>
@@ -97,7 +129,7 @@ function CardMain() {
     
     </div>} 
 </div>
-  
+  {/* carrito de compras */}
     <div className='col-md-4 fixed-column' >
     <h2>Cart</h2>
     <div className='list-group'>
@@ -112,7 +144,7 @@ function CardMain() {
         <li>Itbis ${percentage}</li>
         <li><h4>Sin Itbis ${tax.toFixed(2)}</h4></li>
         <li><div className='alert alert-success' role='alert'><h3 className=''> Total con Itbis ${((Dtax2 * tax)+ tax).toFixed(2)}</h3></div></li>
-        <li><Button variant='Danger' onClick={()=>submitCard()}/></li>
+        <li><div className='btn-danger'><Button variant='danger'   onClick={()=>submitCard()}> Cobrar</Button></div></li>
     </ul>    
      :    
     null}
